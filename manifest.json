@@ -1,0 +1,37 @@
+{
+  "name": "GloBookmark",
+  "version": "1.0",
+  "description": "Bookmark any area of a web page and automatically add the link to your ticke",
+  "manifest_version": 2,
+  "devtools_page": "devtools.html",
+  "offline_enabled": true,
+  "permissions": [
+    "tabs",
+    "http://*/*",
+    "https://*/*",
+    "identity",
+    "activeTab"
+  ],
+  "browser_action": {
+    "default_title": "Inject!"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  }
+}
