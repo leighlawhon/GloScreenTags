@@ -35,10 +35,11 @@
 //   });
 // })
 
-// chrome.runtime.onMessage.addListener(function (msg, sender) {
-//   // First, validate the message's structure
-//   if (msg.from === 'panel') {
-//     // Enable the page-action for the requesting tab
-//     alert('panel received in background')
-//   }
-// });
+chrome.runtime.onMessage.addListener(function (msg, sender) {
+  // First, validate the message's structure
+  if (msg.from === 'panel') {
+    // Enable the page-action for the requesting tab
+    alert('panel received in background')
+  }
+  return true;
+});

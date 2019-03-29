@@ -24,15 +24,10 @@ chrome.identity.launchWebAuthFlow(
         const baseUrl = 'https://gloapi.gitkraken.com/v1/glo/'
         const accessToken = '?access_token=' + data.access_token;
 
-        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-          chrome.tabs.sendMessage(tabs[0].id, { from: 'panel', subject: accessToken },
-            function () { });
-        });
-
         getData(baseUrl + '/boards' + accessToken)
           .then(data => {
             const boardSelect = document.getElementById('board_select');
-            alert(JSON.stringify(data))
+            // alert(JSON.stringify(data))
             createBoardDropDown(data, boardSelect);
             listenToBoardSelect(boardSelect, baseUrl, accessToken);
           })
@@ -79,7 +74,7 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
   boardSelect.addEventListener('change', (e) => {
     const boardId = e.target.value;
     getData(baseUrl + 'boards/' + boardId + accessToken + '&fields=columns')
-      .then(boards => alert(JSON.stringify(boards)))
+    // .then(boards => alert(JSON.stringify(boards)))
     getData(baseUrl + 'boards/' + boardId + '/cards' + accessToken)
       .then((cards) => {
         const columns = parseColumns(cards);
@@ -107,27 +102,33 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
 }
 function renderCard(card, col, commentUrl) {
   const cardCont = document.createElement('div');
+  const addCommentBtn = document.createElement('button');
+  addCommentBtn.innerHTML = "+";
+  addCommentBtn.addEventListener('click', (e) => addComment(e, card.id), false)
   cardCont.innerHTML = card.name;
-  cardCont.addEventListener('click', (e) => {
-    createCard(card, commentUrl);
-    chrome.tabs.create({ url: 'https://www.cnn.com', active: true });
-  })
+  cardCont.style.border = "thin blue solid";
+  // cardCont.addEventListener('click', (e) => {
+  createCard(card, commentUrl);
+  //   // chrome.tabs.create({ url: 'https://www.cnn.com', active: true });
+  // }, false)
+  cardCont.appendChild(addCommentBtn);
   col.appendChild(cardCont);
 }
 function createCard(card, commentUrl) {
+  // e.stopPropagation();
   const mainCont = document.getElementById('card');
   mainCont.innerHTML = '';
   getData(commentUrl)
     .then((comments) => {
-      const nameCont = document.createElement('h3');
-      const commentsCont = document.createElement('div');
+      // const nameCont = document.createElement('h3');
+      // const commentsCont = document.createElement('div');
       comments.forEach((comment => {
-        const commentCont = document.createElement('p');
-        var converter = new showdown.Converter(),
-          html = converter.makeHtml(comment.text);
+        // const commentCont = document.createElement('p');
+        // var converter = new showdown.Converter(),
+        //   html = converter.makeHtml(comment.text);
         parseComments(comment.text, mainCont);
-        commentCont.innerHTML = html;
-        commentsCont.appendChild(commentCont);
+        // commentCont.innerHTML = html;
+        // commentsCont.appendChild(commentCont);
       }))
       nameCont.innerHTML = card.name;
       mainCont.appendChild(nameCont)
@@ -150,14 +151,17 @@ function parseColumns(cards) {
 
 function parseComments(comment, mainCont) {
   if (comment[0] === '{' && comment[comment.length - 1] === '}' && comment.substring(2, 14) === 'gloScreenTag') {
-    const url = JSON.parse(comment);
-    // alert(url.gloScreenTag.url)
-    let iframe = document.createElement('a');
-    iframe.text = "testing"
-    iframe.href = 'https://app.gitkraken.com/glo/board/WpoBup0TPw8Aocqg/card/WpoCEZ0TPw8Aocql';
-    // iframe.width = url.gloScreenTag.w;
-    // iframe.height = url.gloScreenTag.h;
-    mainCont.appendChild(iframe);
+    const json = JSON.parse(comment);
+    sendMessage("renderComment", json)
   }
 }
-
+function sendMessage(sub, msg) {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.sendMessage(tabs[0].id, { from: 'panel', subject: sub, message: msg },
+      function () { });
+  });
+}
+function addComment(e, id) {
+  e.stopPropagation();
+  sendMessage("addComment", id)
+}
