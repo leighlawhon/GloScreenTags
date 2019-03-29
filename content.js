@@ -3,19 +3,19 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
   // alert(msg.subject)
   if (msg.from === 'panel') {
     if (msg.subject === "addComment") {
+      alert(msg.message)
       const drawDiv = document.createElement('div');
       drawDiv.style.width = "20px";
       drawDiv.style.height = "20px";
       drawDiv.style.position = 'absolute';
       drawDiv.textContent = JSON.stringify(msg.message);
-      drawDiv.style.top = "500px";
-      drawDiv.style.left = "500px";
+      drawDiv.style.top = "50px";
+      drawDiv.style.left = "50px";
       drawDiv.style.border = "solid 2px blue";
       drawDiv.style.zIndex = 2000000089;
       document.body.appendChild(drawDiv);
     }
     if (msg.subject === "renderComment") {
-      // alert(JSON.stringify(msg.message))
       const commentUrl = msg.message.gloScreenTag.url
       const currentUrl = window.location.toString();
       if (commentUrl === currentUrl) {

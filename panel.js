@@ -122,14 +122,15 @@ function createCard(card, commentUrl) {
     .then((comments) => {
       // const nameCont = document.createElement('h3');
       // const commentsCont = document.createElement('div');
-      comments.forEach((comment => {
+      comments.forEach((comment) => {
+
         // const commentCont = document.createElement('p');
         // var converter = new showdown.Converter(),
         //   html = converter.makeHtml(comment.text);
         checkForTags(comment.text);
         // commentCont.innerHTML = html;
         // commentsCont.appendChild(commentCont);
-      }))
+      });
       // nameCont.innerHTML = card.name;
       // mainCont.appendChild(nameCont)
       // mainCont.appendChild(commentsCont)
@@ -150,10 +151,12 @@ function parseColumns(cards) {
 }
 
 function checkForTags(comment) {
+
   if (comment[0] === '{' && comment[comment.length - 1] === '}' && comment.substring(2, 14) === 'gloScreenTag') {
     const json = JSON.parse(comment);
     sendMessage("renderComment", json)
   }
+  return;
 }
 function sendMessage(sub, msg) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -165,7 +168,7 @@ function addComment(e, id, url) {
   e.stopPropagation();
   sendMessage("addComment", id);
   const bodyData = {
-    text: "{'gloScreenTag' : {'url': 'https://dog.ceo/dog-api/documentation/', 'x': '200', 'y': '200', 'w': '50', 'h':'50'}}"
+    text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": "100", "y": "100", "w": "50", "h":"50"}}',
   }
   postData(url, bodyData)
 }
