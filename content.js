@@ -31,7 +31,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
         document.body.appendChild(renderDiv);
       }
     }
-
   }
-
+  return true;
 });

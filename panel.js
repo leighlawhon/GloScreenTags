@@ -116,8 +116,8 @@ function renderCard(card, col, commentUrl) {
 }
 function createCard(card, commentUrl) {
   // e.stopPropagation();
-  const mainCont = document.getElementById('card');
-  mainCont.innerHTML = '';
+  // const mainCont = document.getElementById('card');
+  // mainCont.innerHTML = '';
   getData(commentUrl)
     .then((comments) => {
       // const nameCont = document.createElement('h3');
@@ -126,13 +126,13 @@ function createCard(card, commentUrl) {
         // const commentCont = document.createElement('p');
         // var converter = new showdown.Converter(),
         //   html = converter.makeHtml(comment.text);
-        parseComments(comment.text, mainCont);
+        parseComments(comment.text);
         // commentCont.innerHTML = html;
         // commentsCont.appendChild(commentCont);
       }))
-      nameCont.innerHTML = card.name;
-      mainCont.appendChild(nameCont)
-      mainCont.appendChild(commentsCont)
+      // nameCont.innerHTML = card.name;
+      // mainCont.appendChild(nameCont)
+      // mainCont.appendChild(commentsCont)
     })
 }
 function parseColumns(cards) {
@@ -149,7 +149,7 @@ function parseColumns(cards) {
   return result
 }
 
-function parseComments(comment, mainCont) {
+function parseComments(comment) {
   if (comment[0] === '{' && comment[comment.length - 1] === '}' && comment.substring(2, 14) === 'gloScreenTag') {
     const json = JSON.parse(comment);
     sendMessage("renderComment", json)
