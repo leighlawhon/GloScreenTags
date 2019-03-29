@@ -104,7 +104,7 @@ function renderCard(card, col, commentUrl) {
   const cardCont = document.createElement('div');
   const addCommentBtn = document.createElement('button');
   addCommentBtn.innerHTML = "+";
-  addCommentBtn.addEventListener('click', (e) => addComment(e, card.id), false)
+  addCommentBtn.addEventListener('click', (e) => addComment(e, card.id, commentUrl), false)
   cardCont.innerHTML = card.name;
   cardCont.style.border = "thin blue solid";
   // cardCont.addEventListener('click', (e) => {
@@ -126,7 +126,7 @@ function createCard(card, commentUrl) {
         // const commentCont = document.createElement('p');
         // var converter = new showdown.Converter(),
         //   html = converter.makeHtml(comment.text);
-        parseComments(comment.text);
+        checkForTags(comment.text);
         // commentCont.innerHTML = html;
         // commentsCont.appendChild(commentCont);
       }))
@@ -149,7 +149,7 @@ function parseColumns(cards) {
   return result
 }
 
-function parseComments(comment) {
+function checkForTags(comment) {
   if (comment[0] === '{' && comment[comment.length - 1] === '}' && comment.substring(2, 14) === 'gloScreenTag') {
     const json = JSON.parse(comment);
     sendMessage("renderComment", json)
@@ -161,7 +161,11 @@ function sendMessage(sub, msg) {
       function () { });
   });
 }
-function addComment(e, id) {
+function addComment(e, id, url) {
   e.stopPropagation();
-  sendMessage("addComment", id)
+  sendMessage("addComment", id);
+  const bodyData = {
+    text: "{'gloScreenTag' : {'url': 'https://dog.ceo/dog-api/documentation/', 'x': '200', 'y': '200', 'w': '50', 'h':'50'}}"
+  }
+  postData(url, bodyData)
 }
