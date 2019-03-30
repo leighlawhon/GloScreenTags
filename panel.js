@@ -92,9 +92,9 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
                   if (msg.from = "content") {
                     if (msg.subject = "editCommentPosition") {
                       const commentBody = {
-                        text: "testing anothr eidt"
+                        text: "testing more edits"
                       }
-                      postData(baseUrl + "boards/" + boardId + "/cards/5a9bef8b9d133f0f00a1ee33/comments/5c9e99a7c6c3bd001268de0c" + accessToken, commentBody)
+                      postData(baseUrl + "boards/" + boardId + "/cards/5a9bef8b9d133f0f00a1ee33/comments/" + msg.message.id + accessToken, commentBody)
                         .then((card) => {
                           alert(JSON.stringify(card) + "card recieved")
                         })
