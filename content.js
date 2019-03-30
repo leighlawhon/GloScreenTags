@@ -32,18 +32,19 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
           y = msg.message.json.gloScreenTag.y,
           w = msg.message.json.gloScreenTag.w,
           h = msg.message.json.gloScreenTag.h;
-        renderComment(x, y, w, h, msg.message.json, msg.message.id)
+        renderComment(x, y, w, h, msg.message.json, msg.message.id, msg.message.cardId)
       }
     }
   }
   return true;
 });
-function renderComment(x, y, w, h, json, id) {
+function renderComment(x, y, w, h, json, id, cardId) {
 
   const renderDiv = document.createElement('div');
   renderDiv.style.position = 'absolute';
   renderDiv.textContent = JSON.stringify(json);
   renderDiv.id = id;
+  renderDiv.setAttribute('data-card', cardId);
   renderDiv.style.width = w + "px";
   renderDiv.style.height = h + "px";
   renderDiv.style.top = y + "px";
@@ -76,7 +77,7 @@ function allowDrop(ev) {
 function dragEnd(ev) {
   var rect = ev.target.getBoundingClientRect();
 
-  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX }, }, function (response) {
+  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, cardId: ev.target.getAttribute('data-card') }, }, function (response) {
 
   });
   // alert(rect.left)var data = ev.dataTransfer.getData("text");

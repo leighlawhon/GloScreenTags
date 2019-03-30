@@ -94,11 +94,10 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
                       const commentBody = {
                         text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": ' + msg.message.posX + ', "y": "100", "w": "50", "h":"50"}}'
                       }
-                      postData(baseUrl + "boards/" + boardId + "/cards/5a9bef8b9d133f0f00a1ee33/comments/" + msg.message.id + accessToken, commentBody)
+                      postData(baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken, commentBody)
                         .then((card) => {
                           alert(JSON.stringify(card) + "card recieved")
                         })
-
                     }
                   }
 
@@ -151,7 +150,7 @@ function createCard(card, commentUrl) {
         const commentCont = document.createElement('p');
         var converter = new showdown.Converter(),
           html = converter.makeHtml(comment.text);
-        checkForTags(comment.text, comment.id);
+        checkForTags(comment.text, comment.id, card.id);
         commentCont.innerHTML = html;
         commentsCont.appendChild(commentCont);
       });
@@ -175,10 +174,10 @@ function parseColumns(cards) {
   return result
 }
 
-function checkForTags(comment, id) {
+function checkForTags(comment, id, cardId) {
   if (comment[0] === '{' && comment[comment.length - 1] === '}' && comment.substring(2, 14) === 'gloScreenTag') {
     const json = JSON.parse(comment);
-    sendMessage("renderComment", { json: json, id: id })
+    sendMessage("renderComment", { json: json, id: id, cardId })
   }
   return;
 }
