@@ -76,7 +76,7 @@ function allowDrop(ev) {
 function dragEnd(ev) {
   var rect = ev.target.getBoundingClientRect();
 
-  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: ev.clientX, }, function (response) {
+  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, message: ev.clientX }, }, function (response) {
 
   });
   // alert(rect.left)var data = ev.dataTransfer.getData("text");

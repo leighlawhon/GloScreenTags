@@ -5,14 +5,8 @@
 //   alert(msg + "message in panel");
 //   return true;
 // });
-chrome.runtime.onMessage.addListener(
-  function (msg, sender, sendResponse) {
-    alert(msg + "panel");
-    // chrome.runtime.sendMessage("background")
-    // Note: Returning true is required here!
-    //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
-    return true;
-  });
+
+
 chrome.identity.launchWebAuthFlow(
   { 'url': 'https://app.gitkraken.com/oauth/authorize?client_id=bn68kgxxiikgfjj8dh41&redirect_uri=https://oopbgfmibjiipmjepkbcefekfeogigkp.chromiumapp.org/provider_cb&response_type=code&scope=board:read board:write user:read', 'interactive': true },
   function (redirect_url) {
@@ -60,6 +54,7 @@ function postData(url, data) {
 }
 
 function getData(url) {
+  // alert(url + "fetch")
   return fetch(url, {
     method: "GET",
     headers: {
@@ -91,10 +86,31 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
           let colDiv = document.createElement('div');
           getData(baseUrl + 'boards/' + boardId + '/columns/' + column.column_id + '/cards' + accessToken)
             .then(cards => {
+              chrome.runtime.onMessage.addListener(
+                function (msg, sender, sendResponse) {
+                  // alert(msg + "panel");
+                  if (msg.from = "content") {
+                    if (msg.subject = "editCommentPosition") {
+                      const commentBody = {
+                        text: "testing anothr eidt"
+                      }
+                      postData(baseUrl + "boards/" + boardId + "/cards/5a9bef8b9d133f0f00a1ee33/comments/5c9e99a7c6c3bd001268de0c" + accessToken, commentBody)
+                        .then((card) => {
+                          alert(JSON.stringify(card) + "card recieved")
+                        })
+
+                    }
+                  }
+
+                  // chrome.runtime.sendMessage("background")
+                  // Note: Returning true is required here!
+                  //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
+                  return true;
+                });
               cards.forEach(card => {
                 const commentUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/comments' + accessToken;
                 const attachmentsUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/attachments' + accessToken;
-                renderCard(card, colDiv, commentUrl)
+                renderComment(card, colDiv, commentUrl)
               })
             })
             .then(() => {
@@ -107,7 +123,7 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
       });
   })
 }
-function renderCard(card, col, commentUrl) {
+function renderComment(card, col, commentUrl) {
   const cardCont = document.createElement('div');
   const addCommentBtn = document.createElement('button');
   addCommentBtn.innerHTML = "+";
@@ -123,23 +139,26 @@ function renderCard(card, col, commentUrl) {
 }
 function createCard(card, commentUrl) {
   // e.stopPropagation();
-  // const mainCont = document.getElementById('card');
-  // mainCont.innerHTML = '';
+  const mainCont = document.getElementById('card');
+  mainCont.innerHTML = '';
   getData(commentUrl)
     .then((comments) => {
-      // const nameCont = document.createElement('h3');
-      // const commentsCont = document.createElement('div');
+      const cardDiv = document.createElement('div');
+      cardDiv.id = card.id;
+      const nameCont = document.createElement('h3');
+      const commentsCont = document.createElement('div');
       comments.forEach((comment) => {
-        // const commentCont = document.createElement('p');
-        // var converter = new showdown.Converter(),
-        //   html = converter.makeHtml(comment.text);
+        const commentCont = document.createElement('p');
+        var converter = new showdown.Converter(),
+          html = converter.makeHtml(comment.text);
         checkForTags(comment.text, comment.id);
-        // commentCont.innerHTML = html;
-        // commentsCont.appendChild(commentCont);
+        commentCont.innerHTML = html;
+        commentsCont.appendChild(commentCont);
       });
-      // nameCont.innerHTML = card.name;
-      // mainCont.appendChild(nameCont)
-      // mainCont.appendChild(commentsCont)
+      nameCont.innerHTML = card.name;
+      cardDiv.appendChild(nameCont)
+      cardDiv.appendChild(commentsCont);
+      mainCont.appendChild(cardDiv);
     })
 }
 function parseColumns(cards) {
