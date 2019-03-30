@@ -123,11 +123,10 @@ function createCard(card, commentUrl) {
       // const nameCont = document.createElement('h3');
       // const commentsCont = document.createElement('div');
       comments.forEach((comment) => {
-
         // const commentCont = document.createElement('p');
         // var converter = new showdown.Converter(),
         //   html = converter.makeHtml(comment.text);
-        checkForTags(comment.text);
+        checkForTags(comment.text, comment.id);
         // commentCont.innerHTML = html;
         // commentsCont.appendChild(commentCont);
       });
@@ -150,11 +149,10 @@ function parseColumns(cards) {
   return result
 }
 
-function checkForTags(comment) {
-
+function checkForTags(comment, id) {
   if (comment[0] === '{' && comment[comment.length - 1] === '}' && comment.substring(2, 14) === 'gloScreenTag') {
     const json = JSON.parse(comment);
-    sendMessage("renderComment", json)
+    sendMessage("renderComment", { json: json, id: id })
   }
   return;
 }
@@ -166,7 +164,7 @@ function sendMessage(sub, msg) {
 }
 function addComment(e, id, url) {
   e.stopPropagation();
-  sendMessage("addComment", id);
+  sendMessage("addComment", { id, id });
   const bodyData = {
     text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": "100", "y": "100", "w": "50", "h":"50"}}',
   }

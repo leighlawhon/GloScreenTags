@@ -10,7 +10,8 @@
     "http://*/*",
     "https://*/*",
     "identity",
-    "activeTab"
+    "activeTab",
+    "debugger"
   ],
   "browser_action": {
     "default_title": "Inject!"
