@@ -5,7 +5,14 @@
 //   alert(msg + "message in panel");
 //   return true;
 // });
-
+chrome.runtime.onMessage.addListener(
+  function (msg, sender, sendResponse) {
+    alert(msg + "panel");
+    // chrome.runtime.sendMessage("background")
+    // Note: Returning true is required here!
+    //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
+    return true;
+  });
 chrome.identity.launchWebAuthFlow(
   { 'url': 'https://app.gitkraken.com/oauth/authorize?client_id=bn68kgxxiikgfjj8dh41&redirect_uri=https://oopbgfmibjiipmjepkbcefekfeogigkp.chromiumapp.org/provider_cb&response_type=code&scope=board:read board:write user:read', 'interactive': true },
   function (redirect_url) {
@@ -104,7 +111,7 @@ function renderCard(card, col, commentUrl) {
   const cardCont = document.createElement('div');
   const addCommentBtn = document.createElement('button');
   addCommentBtn.innerHTML = "+";
-  addCommentBtn.addEventListener('click', (e) => addComment(e, card.id, commentUrl), false)
+  addCommentBtn.addEventListener('click', (e) => addComment(e, card.id, commentUrl))
   cardCont.innerHTML = card.name;
   cardCont.style.border = "thin blue solid";
   // cardCont.addEventListener('click', (e) => {

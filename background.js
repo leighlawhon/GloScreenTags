@@ -1,6 +1,7 @@
 chrome.runtime.onMessage.addListener(
   function (msg, sender, sendResponse) {
-    alert(msg.message)
+    alert(msg.message);
+    chrome.runtime.sendMessage("background")
     // Note: Returning true is required here!
     //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
     return true;
