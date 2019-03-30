@@ -94,7 +94,7 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
                       const commentBody = {
                         text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": ' + msg.message.posX + ', "y": "100", "w": "50", "h":"50"}}'
                       }
-                      postData(baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken, commentBody)
+                      postData(baseUrl + "boards/" + boardId + "/cards/5a9bef8b9d133f0f00a1ee33/comments/" + msg.message.id + accessToken, commentBody)
                         .then((card) => {
                           alert(JSON.stringify(card) + "card recieved")
                         })
