@@ -1,17 +1,21 @@
-const pageDiv = document.createElement('div');
-pageDiv.id = "pageDiv124";
-pageDiv.addEventListener("drop", drop);
-pageDiv.addEventListener("dragover", allowDrop);
-document.body.appendChild(pageDiv);
-window.addEventListener("resize", displayWindowSize);
-window.onload = displayWindowSize;
+// const pageDiv = document.createElement('div');
+// pageDiv.id = "pageDiv124";
 
-function displayWindowSize() {
-  const windowWidth = window.innerWidth;
-  const windowHeight = window.innerHeight;
-  pageDiv.style.width = windowWidth + "px";
-  pageDiv.style.height = windowHeight + "px";
-};
+// pageDiv.addEventListener("drop", drop);
+// pageDiv.addEventListener("dragover", allowDrop);
+// const firstChild = document.body.firstChild
+// document.body.insertBefore(pageDiv, firstChild);
+// window.addEventListener("resize", dropTargetSize);
+// window.onload = dropTargetSize;
+
+// function dropTargetSize() {
+//   const windowWidth = window.innerWidth;
+//   const windowHeight = window.innerHeight;
+//   pageDiv.style.width = windowWidth + "px";
+//   pageDiv.style.height = windowHeight + "px";
+//   // pageDiv.style.position = "absolute";
+//   // pageDiv.style.zIndex = "2000076";
+// };
 
 chrome.runtime.onMessage.addListener(function (msg, sender, response) {
   // alert(msg.subject)
@@ -54,27 +58,34 @@ function renderComment(x, y, w, h, json, id) {
 }
 
 function drop(ev) {
-  ev.stopPropagation()
-  ev.preventDefault();
-  var data = ev.dataTransfer.getData("text");
-  alert(data + "--------")
-  // ev.target.appendChild(document.getElementById(data));
+  // var data = ev.dataTransfer.getData("text");
+  // alert("drop" + data)
+  // ev.stopPropagation()
+  // ev.preventDefault();
+
+  // // alert(data + "--------")
+  // pageDiv.appendChild(document.getElementById(data));
 }
 
 function allowDrop(ev) {
-  ev.stopPropagation()
-  ev.preventDefault();
+
+  // ev.stopPropagation()
+  // ev.preventDefault();
 }
 
 function dragEnd(ev) {
   var rect = ev.target.getBoundingClientRect();
+
+  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: ev.clientX, }, function (response) {
+
+  });
   // alert(rect.left)var data = ev.dataTransfer.getData("text");
   // var data = ev.dataTransfer.getData("text");
 
   // alert(data + "--------")
 }
 function dragStart(ev) {
-  ev.stopPropagation()
+  // ev.stopPropagation()
   // alert(ev.target.id + "+++++++")
-  event.dataTransfer.setData("Text", ev.target.id);
+  // event.dataTransfer.setData("Text", ev.target.id);
 }

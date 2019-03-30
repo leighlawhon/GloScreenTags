@@ -1,9 +1,17 @@
-
-
-// chrome.browserAction.onClicked.addListener(function (activeTab) {
-//   var newURL = "http://stackoverflow.com/";
-//   chrome.tabs.create({ url: newURL });
+chrome.runtime.onMessage.addListener(
+  function (msg, sender, sendResponse) {
+    alert(msg.message)
+    // Note: Returning true is required here!
+    //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
+    return true;
+  });
+// port.onMessage.addListener(function (msg) {
+//   alert("message recieved devtools" + msg);
+//   return true;
 // });
+
+
+
 
 // chrome.browserAction.onClicked.addListener(function (tab) {
 //   // for the current tab, inject the "inject.js" file & execute it

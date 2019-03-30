@@ -1,9 +1,9 @@
 // var port = chrome.runtime.connect({
 //   name: "panel"
 // });
-
 // port.onMessage.addListener(function (msg) {
-//   // alert("message recieved devtools" + msg);
+//   alert(msg + "message in panel");
+//   return true;
 // });
 
 chrome.identity.launchWebAuthFlow(
