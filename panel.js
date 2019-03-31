@@ -1,14 +1,5 @@
-// var port = chrome.runtime.connect({
-//   name: "panel"
-// });
-// port.onMessage.addListener(function (msg) {
-//   alert(msg + "message in panel");
-//   return true;
-// });
-
-
 chrome.identity.launchWebAuthFlow(
-  { 'url': 'https://app.gitkraken.com/oauth/authorize?client_id=bn68kgxxiikgfjj8dh41&redirect_uri=https://oopbgfmibjiipmjepkbcefekfeogigkp.chromiumapp.org/provider_cb&response_type=code&scope=board:read board:write user:read', 'interactive': true },
+  { 'url': 'https://app.gitkraken.com/oauth/authorize?client_id=bn68kgxxiikgfjj8dh41&redirect_uri=https://laakphkcneokcnkadpjncgidbmeghpbg.chromiumapp.org/provider_cb&response_type=code&scope=board:read board:write user:read', 'interactive': true },
   function (redirect_url) {
     // alert(redirect_url);
     const code = getUrlVars(redirect_url, "code");
@@ -28,7 +19,6 @@ chrome.identity.launchWebAuthFlow(
         getData(baseUrl + '/boards' + accessToken)
           .then(data => {
             const boardSelect = document.getElementById('board_select');
-            // alert(JSON.stringify(data))
             createBoardDropDown(data, boardSelect);
             listenToBoardSelect(boardSelect, baseUrl, accessToken);
           })
@@ -54,7 +44,6 @@ function postData(url, data) {
 }
 
 function getData(url) {
-  // alert(url + "fetch")
   return fetch(url, {
     method: "GET",
     headers: {
@@ -76,7 +65,6 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
   boardSelect.addEventListener('change', (e) => {
     const boardId = e.target.value;
     getData(baseUrl + 'boards/' + boardId + accessToken + '&fields=columns')
-    // .then(boards => alert(JSON.stringify(boards)))
     getData(baseUrl + 'boards/' + boardId + '/cards' + accessToken)
       .then((cards) => {
         const columns = parseColumns(cards);
@@ -115,17 +103,10 @@ function listenForChanges(baseUrl, boardId, accessToken) {
           }
           postData(url, commentBody)
             .then((comment) => {
-              // alert(JSON.stringify(comment));
-              // {"text":"gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={\"x\": 541, \"y\": 195, \"w\": \"50\", \"h\":\"50\"}","card_id":"5a9bef8b9d133f0f00a1ee33","created_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"},"created_date":"2019-03-30T16:13:01.154Z","updated_date":"2019-03-31T08:21:55.956Z","board_id":"5a9a01ba9d133f0f00a1caa0","id":"5c9f958d925dd8000f8b97a3","updated_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"}}
-
               checkForTags([comment], msg.message.cardId)
             })
         }
       }
-
-      // chrome.runtime.sendMessage("background")
-      // Note: Returning true is required here!
-      //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
       return true;
     });
 }
@@ -179,7 +160,6 @@ function parseColumns(cards) {
 function checkForTags(comments, cardId) {
   comments.forEach((comment) => {
     deleteTag(comment.id);
-    alert(JSON.stringify(comment))
     // const commentP = document.createElement('p');
     //   var converter = new showdown.Converter(),
     //     html = converter.makeHtml(comment.text);
@@ -210,8 +190,6 @@ function addCommentTag(e, id, url) {
   }
   postData(url, bodyData)
     .then((comment) => {
-      // alert(JSON.stringify(card));
-      // {"text":"gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={\"x\": 100, \"y\": 100, \"w\": \"50\", \"h\":\"50\"}","card_id":"5a9bef909d133f0f00a1ee34","created_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"},"created_date":"2019-03-31T09:05:10.261Z","updated_date":"2019-03-31T09:05:10.261Z","board_id":"5a9a01ba9d133f0f00a1caa0","id":"5ca082c68c7a3a0011c941ee","updated_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"}}
       const extractedUrl = extractGloScreenTag(comment.text)
       sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id, cardId: comment.card_id })
     })

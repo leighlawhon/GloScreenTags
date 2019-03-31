@@ -1,17 +1,22 @@
 {
-  "name": "GloBookmark",
+  "name": "GloScreenTags",
   "version": "1.0",
-  "description": "Bookmark any area of a web page and automatically add the link to your ticke",
+  "description": "Bookmark any area of a web page and automatically add the link to a comment in your ticket.",
   "manifest_version": 2,
   "devtools_page": "devtools.html",
-  "offline_enabled": true,
+  "offline_enabled": false,
+  "icons": {
+    "16": "GloScreenTags16.png",
+    "48": "GloScreenTags48.png",
+    "128": "GloScreenTags128.png"
+  },
   "permissions": [
     "tabs",
-    "http://*/*",
-    "https://*/*",
+    "https://app.gitkraken.com/*",
+    "https://api.gitkraken.com/*",
+    "https://gloapi.gitkraken.com/v1/glo/*",
     "identity",
-    "activeTab",
-    "debugger"
+    "activeTab"
   ],
   "browser_action": {
     "default_title": "Inject!"
