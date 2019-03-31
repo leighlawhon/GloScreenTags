@@ -99,7 +99,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
         if (msg.subject = "editCommentPosition") {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
           const commentBody = {
-            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={"x": ' + msg.message.posX + ', "y": ' + msg.message.posY + ', "w": "50", "h":"50"}'
+            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY,
           }
           postData(url, commentBody)
             .then((comment) => {
@@ -166,7 +166,7 @@ function checkForTags(comments, cardId) {
     //   commentP.innerHTML = html;
     if (comment.text.substring(0, 13) === 'gloScreenTag=') {
       const extractedUrl = extractGloScreenTag(comment.text)
-      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId })
+      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId, commentText: extractedUrl.commentText })
     }
     // commentCont.innerHTML = html;
     // commentsCont.appendChild(commentCont);
@@ -186,19 +186,29 @@ function sendMessage(sub, msg) {
 function addCommentTag(e, id, url) {
   e.stopPropagation();
   const bodyData = {
-    text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={"x": 100, "y": 100, "w": "50", "h":"50"}',
+    text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=100&y=100}',
   }
   postData(url, bodyData)
     .then((comment) => {
       const extractedUrl = extractGloScreenTag(comment.text)
-      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id, cardId: comment.card_id })
+      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id, cardId: comment.card_id, commentText: extractedUrl.commentText })
     })
 }
 
 function extractGloScreenTag(comment) {
-  const urlString = comment.substring(13, comment.length);
-  const jsonStr = getUrlVars(urlString, 'gloScreenTag');
-  const url = urlString.split('?')[0];
-  const json = JSON.parse(jsonStr);
-  return { url, json }
+  if (comment.substring(0, 13) === 'gloScreenTag=') {
+    const commentUrl = comment.split("gloScreenTagText=")[0];
+    const commentText = comment.split("gloScreenTagText=")[1];
+    const urlString = commentUrl.substring(13, commentUrl.length);
+    let json = {};
+    const gloScreenTag = getUrlVars(urlString, 'gloScreenTag');
+    if (gloScreenTag) {
+      x = getUrlVars(urlString, 'x');
+      y = getUrlVars(urlString, 'y');
+    }
+    const url = urlString.split('?')[0];
+    json = { x, y };
+    return { url, json, commentText }
+  }
+
 }

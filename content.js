@@ -12,24 +12,21 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
       const currentUrl = window.location.toString();
       if (commentUrl === currentUrl) {
         const x = msg.message.json.x,
-          y = msg.message.json.y,
-          w = msg.message.json.w,
-          h = msg.message.json.h;
-        renderComment(x, y, w, h, msg.message.json, msg.message.id, msg.message.cardId)
+          y = msg.message.json.y;
+        renderComment(x, y, msg.message.json, msg.message.id, msg.message.cardId, msg.message.commentText)
       }
     }
   }
   return true;
 });
-function renderComment(x, y, w, h, json, id, cardId) {
-
+function renderComment(x, y, json, id, cardId, commentText) {
   const renderDiv = document.createElement('div');
   renderDiv.style.position = 'absolute';
-  renderDiv.textContent = JSON.stringify(json);
+  renderDiv.textContent = commentText;
   renderDiv.id = id;
   renderDiv.setAttribute('data-card', cardId);
-  renderDiv.style.width = w + "px";
-  renderDiv.style.height = h + "px";
+  renderDiv.style.width = "50px";
+  renderDiv.style.height = "50px";
   renderDiv.style.top = y + "px";
   renderDiv.style.left = x + "px";
   renderDiv.style.border = "solid 2px blue";
@@ -48,5 +45,4 @@ function deleteCommentTag(id) {
 
 function dragEnd(ev) {
   chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, posY: ev.clientY, cardId: ev.target.getAttribute('data-card') }, });
-
 }
