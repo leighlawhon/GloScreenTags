@@ -10,6 +10,9 @@
     "48": "GloScreenTags48.png",
     "128": "GloScreenTags128.png"
   },
+  "web_accessible_resources": [
+    "GloScreenTags48.png"
+  ],
   "permissions": [
     "tabs",
     "https://app.gitkraken.com/*",

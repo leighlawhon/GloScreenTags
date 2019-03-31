@@ -99,7 +99,16 @@ function listenForChanges(baseUrl, boardId, accessToken) {
         if (msg.subject = "editCommentPosition") {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
           const commentBody = {
-            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY,
+            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=This is ok',
+          }
+          postData(url, commentBody)
+            .then((comment) => {
+              checkForTags([comment], msg.message.cardId)
+            })
+        }
+        if (msg.subject = "saveComment") {
+          const commentBody = {
+            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
           }
           postData(url, commentBody)
             .then((comment) => {
@@ -116,7 +125,7 @@ function renderComment(card, col, commentUrl) {
   addCommentTagBtn.innerHTML = "+";
   addCommentTagBtn.addEventListener('click', (e) => addCommentTag(e, card.id, commentUrl))
   cardCont.innerHTML = card.name;
-  cardCont.style.border = "thin blue solid";
+  // cardCont.style.border = "thin blue solid";
   // cardCont.addEventListener('click', (e) => {
   createCard(card, commentUrl);
   //   // chrome.tabs.create({ url: 'https://www.cnn.com', active: true });
