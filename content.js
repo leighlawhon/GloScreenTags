@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
   if (msg.from === 'panel') {
 
     if (msg.subject === "addComment") {
-      renderComment("20", "20", "50", "50", msg.json, msg.id)
+      // renderComment("20", "20", "50", "50", msg.json, msg.id)
     }
     if (msg.subject === "deleteCommentTag") {
       deleteCommentTag(msg.message)

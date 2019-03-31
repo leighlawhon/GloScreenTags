@@ -118,7 +118,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
               // alert(JSON.stringify(comment));
               // {"text":"gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={\"x\": 541, \"y\": 195, \"w\": \"50\", \"h\":\"50\"}","card_id":"5a9bef8b9d133f0f00a1ee33","created_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"},"created_date":"2019-03-30T16:13:01.154Z","updated_date":"2019-03-31T08:21:55.956Z","board_id":"5a9a01ba9d133f0f00a1caa0","id":"5c9f958d925dd8000f8b97a3","updated_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"}}
 
-              checkForTags(comment.text, comment.id, comment.card_id)
+              checkForTags([comment], msg.message.cardId)
             })
         }
       }
@@ -131,16 +131,16 @@ function listenForChanges(baseUrl, boardId, accessToken) {
 }
 function renderComment(card, col, commentUrl) {
   const cardCont = document.createElement('div');
-  const addCommentBtn = document.createElement('button');
-  addCommentBtn.innerHTML = "+";
-  addCommentBtn.addEventListener('click', (e) => addComment(e, card.id, commentUrl))
+  const addCommentTagBtn = document.createElement('button');
+  addCommentTagBtn.innerHTML = "+";
+  addCommentTagBtn.addEventListener('click', (e) => addCommentTag(e, card.id, commentUrl))
   cardCont.innerHTML = card.name;
   cardCont.style.border = "thin blue solid";
   // cardCont.addEventListener('click', (e) => {
   createCard(card, commentUrl);
   //   // chrome.tabs.create({ url: 'https://www.cnn.com', active: true });
   // }, false)
-  cardCont.appendChild(addCommentBtn);
+  cardCont.appendChild(addCommentTagBtn);
   col.appendChild(cardCont);
 }
 function createCard(card, commentUrl) {
@@ -152,19 +152,14 @@ function createCard(card, commentUrl) {
       const cardDiv = document.createElement('div');
       cardDiv.id = card.id;
       const nameCont = document.createElement('h3');
+
       const commentsCont = document.createElement('div');
-      comments.forEach((comment) => {
-        const commentCont = document.createElement('p');
-        var converter = new showdown.Converter(),
-          html = converter.makeHtml(comment.text);
-        checkForTags(comment.text, comment.id, card.id);
-        commentCont.innerHTML = html;
-        commentsCont.appendChild(commentCont);
-      });
+      // commentsCont.appendChild(commentP);
       nameCont.innerHTML = card.name;
       cardDiv.appendChild(nameCont)
       cardDiv.appendChild(commentsCont);
       mainCont.appendChild(cardDiv);
+      checkForTags(comments, card.id);
     })
 }
 function parseColumns(cards) {
@@ -181,15 +176,22 @@ function parseColumns(cards) {
   return result
 }
 
-function checkForTags(comment, id, cardId) {
-  deleteTag(id);
-  if (comment.substring(0, 13) === 'gloScreenTag=') {
-    const urlString = comment.substring(13, comment.length);
-    const jsonStr = getUrlVars(urlString, 'gloScreenTag');
-    const url = urlString.split('?')[0];
-    const json = JSON.parse(jsonStr);
-    sendMessage("renderComment", { url, json, id, cardId })
-  }
+function checkForTags(comments, cardId) {
+  comments.forEach((comment) => {
+    deleteTag(comment.id);
+    alert(JSON.stringify(comment))
+    // const commentP = document.createElement('p');
+    //   var converter = new showdown.Converter(),
+    //     html = converter.makeHtml(comment.text);
+    //   commentP.innerHTML = html;
+    if (comment.text.substring(0, 13) === 'gloScreenTag=') {
+      const extractedUrl = extractGloScreenTag(comment.text)
+      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId })
+    }
+    // commentCont.innerHTML = html;
+    // commentsCont.appendChild(commentCont);
+  });
+
   return;
 }
 function deleteTag(id) {
@@ -201,11 +203,24 @@ function sendMessage(sub, msg) {
       function () { });
   });
 }
-function addComment(e, id, url) {
+function addCommentTag(e, id, url) {
   e.stopPropagation();
-  sendMessage("addComment", { id, id });
   const bodyData = {
-    text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": "100", "y": "100", "w": "50", "h":"50"}}',
+    text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={"x": 100, "y": 100, "w": "50", "h":"50"}',
   }
   postData(url, bodyData)
+    .then((comment) => {
+      // alert(JSON.stringify(card));
+      // {"text":"gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={\"x\": 100, \"y\": 100, \"w\": \"50\", \"h\":\"50\"}","card_id":"5a9bef909d133f0f00a1ee34","created_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"},"created_date":"2019-03-31T09:05:10.261Z","updated_date":"2019-03-31T09:05:10.261Z","board_id":"5a9a01ba9d133f0f00a1caa0","id":"5ca082c68c7a3a0011c941ee","updated_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"}}
+      const extractedUrl = extractGloScreenTag(comment.text)
+      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id, cardId: comment.card_id })
+    })
+}
+
+function extractGloScreenTag(comment) {
+  const urlString = comment.substring(13, comment.length);
+  const jsonStr = getUrlVars(urlString, 'gloScreenTag');
+  const url = urlString.split('?')[0];
+  const json = JSON.parse(jsonStr);
+  return { url, json }
 }
