@@ -111,7 +111,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
         if (msg.subject = "editCommentPosition") {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
           const commentBody = {
-            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={"x": ' + msg.message.posX + ', "y": "100", "w": "50", "h":"50"}'
+            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={"x": ' + msg.message.posX + ', "y": ' + msg.message.posY + ', "w": "50", "h":"50"}'
           }
           postData(url, commentBody)
           // .then((card) => {

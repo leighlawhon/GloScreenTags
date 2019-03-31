@@ -79,7 +79,7 @@ function allowDrop(ev) {
 function dragEnd(ev) {
   var rect = ev.target.getBoundingClientRect();
 
-  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, cardId: ev.target.getAttribute('data-card') }, }, function (response) {
+  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, posY: ev.clientY, cardId: ev.target.getAttribute('data-card') }, }, function (response) {
 
   });
   // alert(rect.left)var data = ev.dataTransfer.getData("text");
