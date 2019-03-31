@@ -106,7 +106,7 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
 function listenForChanges(baseUrl, boardId, accessToken) {
   chrome.runtime.onMessage.addListener(
     function (msg, sender, sendResponse) {
-      alert(JSON.stringify(msg.message) + "panel");
+
       if (msg.from = "content") {
         if (msg.subject = "editCommentPosition") {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
@@ -114,9 +114,12 @@ function listenForChanges(baseUrl, boardId, accessToken) {
             text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={"x": ' + msg.message.posX + ', "y": ' + msg.message.posY + ', "w": "50", "h":"50"}'
           }
           postData(url, commentBody)
-          // .then((card) => {
-          //   alert(JSON.stringify(card) + "card recieved")
-          // })
+            .then((comment) => {
+              alert(JSON.stringify(comment));
+              // {"text":"gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={\"x\": 541, \"y\": 195, \"w\": \"50\", \"h\":\"50\"}","card_id":"5a9bef8b9d133f0f00a1ee33","created_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"},"created_date":"2019-03-30T16:13:01.154Z","updated_date":"2019-03-31T08:21:55.956Z","board_id":"5a9a01ba9d133f0f00a1caa0","id":"5c9f958d925dd8000f8b97a3","updated_by":{"id":"a7b7e9ab-42f1-4e17-9992-aec155c1d4fc"}}
+              // deleteTag();
+              checkForTags(comment.text, comment.id, comment.card_id)
+            })
         }
       }
 
