@@ -111,7 +111,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
         if (msg.subject = "editCommentPosition") {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
           const commentBody = {
-            text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": ' + msg.message.posX + ', "y": "100", "w": "50", "h":"50"}}'
+            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag={"x": ' + msg.message.posX + ', "y": "100", "w": "50", "h":"50"}'
           }
           postData(url, commentBody)
           // .then((card) => {
@@ -179,9 +179,12 @@ function parseColumns(cards) {
 }
 
 function checkForTags(comment, id, cardId) {
-  if (comment[0] === '{' && comment[comment.length - 1] === '}' && comment.substring(2, 14) === 'gloScreenTag') {
-    const json = JSON.parse(comment);
-    sendMessage("renderComment", { json: json, id: id, cardId })
+  if (comment.substring(0, 13) === 'gloScreenTag=') {
+    const urlString = comment.substring(13, comment.length);
+    const jsonStr = getUrlVars(urlString, 'gloScreenTag');
+    const url = urlString.split('?')[0];
+    const json = JSON.parse(jsonStr);
+    sendMessage("renderComment", { url, json, id, cardId })
   }
   return;
 }

@@ -25,13 +25,15 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
       renderComment("20", "20", "50", "50", msg.json, msg.id)
     }
     if (msg.subject === "renderComment") {
-      const commentUrl = msg.message.json.gloScreenTag.url
+
+      const commentUrl = msg.message.url
       const currentUrl = window.location.toString();
+      alert(JSON.stringify(commentUrl, currentUrl));
       if (commentUrl === currentUrl) {
-        const x = msg.message.json.gloScreenTag.x,
-          y = msg.message.json.gloScreenTag.y,
-          w = msg.message.json.gloScreenTag.w,
-          h = msg.message.json.gloScreenTag.h;
+        const x = msg.message.json.x,
+          y = msg.message.json.y,
+          w = msg.message.json.w,
+          h = msg.message.json.h;
         renderComment(x, y, w, h, msg.message.json, msg.message.id, msg.message.cardId)
       }
     }
