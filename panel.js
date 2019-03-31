@@ -86,26 +86,7 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
           let colDiv = document.createElement('div');
           getData(baseUrl + 'boards/' + boardId + '/columns/' + column.column_id + '/cards' + accessToken)
             .then(cards => {
-              chrome.runtime.onMessage.addListener(
-                function (msg, sender, sendResponse) {
-                  // alert(msg + "panel");
-                  if (msg.from = "content") {
-                    if (msg.subject = "editCommentPosition") {
-                      const commentBody = {
-                        text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": ' + msg.message.posX + ', "y": "100", "w": "50", "h":"50"}}'
-                      }
-                      postData(baseUrl + "boards/" + boardId + "/cards/5a9bef8b9d133f0f00a1ee33/comments/" + msg.message.id + accessToken, commentBody)
-                        .then((card) => {
-                          alert(JSON.stringify(card) + "card recieved")
-                        })
-                    }
-                  }
-
-                  // chrome.runtime.sendMessage("background")
-                  // Note: Returning true is required here!
-                  //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
-                  return true;
-                });
+              listenForChanges(baseUrl, boardId, accessToken);
               cards.forEach(card => {
                 const commentUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/comments' + accessToken;
                 const attachmentsUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/attachments' + accessToken;
@@ -121,6 +102,29 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
 
       });
   })
+}
+function listenForChanges(baseUrl, boardId, accessToken) {
+  chrome.runtime.onMessage.addListener(
+    function (msg, sender, sendResponse) {
+      alert(JSON.stringify(msg.message) + "panel");
+      if (msg.from = "content") {
+        if (msg.subject = "editCommentPosition") {
+          const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
+          const commentBody = {
+            text: '{"gloScreenTag" : {"url": "https://dog.ceo/dog-api/documentation/", "x": ' + msg.message.posX + ', "y": "100", "w": "50", "h":"50"}}'
+          }
+          postData(url, commentBody)
+          // .then((card) => {
+          //   alert(JSON.stringify(card) + "card recieved")
+          // })
+        }
+      }
+
+      // chrome.runtime.sendMessage("background")
+      // Note: Returning true is required here!
+      //  ref: http://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
+      return true;
+    });
 }
 function renderComment(card, col, commentUrl) {
   const cardCont = document.createElement('div');
