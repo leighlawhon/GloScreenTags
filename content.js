@@ -24,11 +24,14 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
     if (msg.subject === "addComment") {
       renderComment("20", "20", "50", "50", msg.json, msg.id)
     }
+    if (msg.subject === "deleteCommentTag") {
+      deleteCommentTag(msg.message)
+    }
     if (msg.subject === "renderComment") {
 
       const commentUrl = msg.message.url
       const currentUrl = window.location.toString();
-      alert(JSON.stringify(commentUrl, currentUrl));
+      // alert(JSON.stringify(commentUrl, currentUrl));
       if (commentUrl === currentUrl) {
         const x = msg.message.json.x,
           y = msg.message.json.y,
@@ -58,6 +61,13 @@ function renderComment(x, y, w, h, json, id, cardId) {
   renderDiv.addEventListener("dragstart", dragStart);
 
   document.body.appendChild(renderDiv);
+}
+
+function deleteCommentTag(id) {
+  const tagToDelete = document.getElementById(id);
+  if (tagToDelete) {
+    tagToDelete.parentNode.removeChild(tagToDelete);
+  }
 }
 
 function drop(ev) {
