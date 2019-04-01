@@ -1,25 +1,22 @@
 chrome.runtime.onMessage.addListener(function (msg, sender, response) {
   if (msg.from === 'panel') {
-
-    if (msg.subject === "addComment") {
-      // renderComment("20", "20", "50", "50", msg.json, msg.id)
-    }
     if (msg.subject === "deleteCommentTag") {
       deleteCommentTag(msg.message)
     }
     if (msg.subject === "renderComment") {
+      // alert(msg.message.cardName)
       const commentUrl = msg.message.url
       const currentUrl = window.location.toString();
       if (commentUrl === currentUrl) {
         const x = msg.message.json.x,
           y = msg.message.json.y;
-        renderComment(x, y, msg.message.json, msg.message.id, msg.message.cardId, msg.message.commentText)
+        renderComment(x, y, msg.message.json, msg.message.id, msg.message.cardId, msg.message.commentText, msg.message.cardName)
       }
     }
   }
   return true;
 });
-function renderComment(x, y, json, id, cardId, commentText) {
+function renderComment(x, y, json, id, cardId, commentText, cardName) {
   const renderDiv = document.createElement('div');
   renderDiv.style.position = 'absolute';
   renderDiv.id = id;
@@ -38,7 +35,7 @@ function renderComment(x, y, json, id, cardId, commentText) {
   renderDiv.draggable = true;
   renderDiv.addEventListener("dragend", dragEnd);
   document.body.appendChild(renderDiv);
-  renderDiv.addEventListener("click", function (e) { openModal(e, id, x, y, cardId, commentText) });
+  renderDiv.addEventListener("click", function (e) { openModal(e, id, x, y, cardId, commentText, cardName) });
 }
 
 function deleteCommentTag(id) {
@@ -47,7 +44,8 @@ function deleteCommentTag(id) {
     tagToDelete.parentNode.removeChild(tagToDelete);
   }
 }
-function openModal(e, id, x, y, cardId, commentText) {
+function openModal(e, id, x, y, cardId, commentText, cardName) {
+  alert(cardName)
   e.stopPropagation();
   const renderDiv = e.target;
   let dataModalAttr = renderDiv.getAttribute("data-modal");
@@ -67,6 +65,8 @@ function openModal(e, id, x, y, cardId, commentText) {
   closeBtn.textContent = "x";
   closeBtn.addEventListener('click', closeModal);
 
+  const cardNameDiv = document.createElement('p');
+  cardNameDiv.textContent = cardName;
   const saveBtn = document.createElement('button');
   saveBtn.textContent = "Save";
   saveBtn.className = "btn btn-link col"
@@ -79,6 +79,7 @@ function openModal(e, id, x, y, cardId, commentText) {
   rowDiv.appendChild(saveBtn);
   rowDiv.appendChild(closeBtn);
   modalBodyDiv.appendChild(rowDiv);
+  modalBodyDiv.appendChild(cardNameDiv);
   modalBodyDiv.appendChild(commentInput);
   modalDiv.appendChild(modalBodyDiv);
   renderDiv.appendChild(modalDiv);
@@ -88,7 +89,7 @@ function openModal(e, id, x, y, cardId, commentText) {
 
 }
 function dragEnd(ev) {
-  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, posY: ev.clientY, cardId: ev.target.getAttribute('data-card') }, });
+  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, posY: ev.clientY, cardId: ev.target.getAttribute('data-card'), cardName: "test" }, });
 }
 function closeModal(e) {
   e.stopPropagation();
@@ -100,8 +101,8 @@ function closeModal(e) {
   // element.addEventListener('click', openModal);
 }
 function renderCommentInput(commentText) {
-  const commentInput = document.createElement('input');
-  commentInput.type = "textarea";
+  const commentInput = document.createElement('textarea');
+  commentInput.rows = "3";
   if (commentText) {
     commentInput.value = commentText;
   }

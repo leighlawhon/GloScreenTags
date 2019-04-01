@@ -65,31 +65,38 @@ function createBoardDropDown(data, boardSelect) {
 function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
   boardSelect.addEventListener('change', (e) => {
     const boardId = e.target.value;
-    getData(baseUrl + 'boards/' + boardId + accessToken + '&fields=columns')
-    getData(baseUrl + 'boards/' + boardId + '/cards' + accessToken)
-      .then((cards) => {
-        const columns = parseColumns(cards);
+    getData(baseUrl + 'boards/' + boardId + accessToken + '&fields=columns').then((resp) => {
+      const columns = resp.columns;
+      // alert(JSON.stringify(columns))
+      // getData(baseUrl + 'boards/' + boardId + '/cards' + accessToken)
+      // .then((cards) => {
+
+      columns.forEach(column => {
         const contentCont = document.getElementById('board_content');
         contentCont.innerHTML = '';
-        columns.forEach(column => {
-          let colDiv = document.createElement('div');
-          getData(baseUrl + 'boards/' + boardId + '/columns/' + column.column_id + '/cards' + accessToken)
-            .then(cards => {
-              listenForChanges(baseUrl, boardId, accessToken);
-              cards.forEach(card => {
-                const commentUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/comments' + accessToken;
-                const attachmentsUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/attachments' + accessToken;
-                renderComment(card, colDiv, commentUrl)
-              })
+        let colDiv = document.createElement('div');
+        const colNameDiv = document.createElement('div');
+        colDiv.appendChild(colNameDiv);
+        colNameDiv.innerHTML = column.name;
+        getData(baseUrl + 'boards/' + boardId + '/columns/' + column.id + '/cards' + accessToken)
+          .then(cards => {
+            listenForChanges(baseUrl, boardId, accessToken);
+            cards.forEach(card => {
+              const commentUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/comments' + accessToken;
+              const attachmentsUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/attachments' + accessToken;
+              renderComment(card, colDiv, commentUrl)
             })
-            .then(() => {
-              colDiv.className = "col";
-              contentCont.appendChild(colDiv)
-            });
+          })
+          .then(() => {
+            colDiv.className = "col";
+            contentCont.appendChild(colDiv)
+          });
 
-        })
+      })
 
-      });
+    });
+    // })
+
   })
 }
 function listenForChanges(baseUrl, boardId, accessToken) {
@@ -104,7 +111,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
             }
             postData(url, commentBody)
               .then((comment) => {
-                checkForTags([comment], msg.message.cardId)
+                checkForTags([comment], msg.message.cardId, msg.message.cardName)
               })
           });
 
@@ -153,34 +160,22 @@ function createCard(card, commentUrl) {
   mainCont.innerHTML = '';
   getData(commentUrl)
     .then((comments) => {
-      const cardDiv = document.createElement('div');
-      cardDiv.id = card.id;
-      const nameCont = document.createElement('h3');
+      // const cardDiv = document.createElement('div');
+      // cardDiv.id = card.id;
+      // const nameCont = document.createElement('h3');
 
-      const commentsCont = document.createElement('div');
-      // commentsCont.appendChild(commentP);
-      nameCont.innerHTML = card.name;
-      cardDiv.appendChild(nameCont)
-      cardDiv.appendChild(commentsCont);
-      mainCont.appendChild(cardDiv);
-      checkForTags(comments, card.id);
+      // const commentsCont = document.createElement('div');
+      // // commentsCont.appendChild(commentP);
+      // nameCont.innerHTML = card.name;
+      // cardDiv.appendChild(nameCont)
+      // cardDiv.appendChild(commentsCont);
+      // mainCont.appendChild(cardDiv);
+      checkForTags(comments, card.id, card.name);
     })
 }
-function parseColumns(cards) {
-  const result = [];
-  const map = new Map();
-  for (const card of cards) {
-    if (!map.has(card.column_id)) {
-      map.set(card.column_id, true);    // set any value to Map
-      result.push({
-        column_id: card.column_id,
-      });
-    }
-  }
-  return result
-}
 
-function checkForTags(comments, cardId) {
+function checkForTags(comments, cardId, cardName) {
+  // alert(cardName)
   comments.forEach((comment) => {
     deleteTag(comment.id);
     // const commentP = document.createElement('p');
@@ -189,7 +184,7 @@ function checkForTags(comments, cardId) {
     //   commentP.innerHTML = html;
     if (comment.text && comment.text.substring(0, 13) === 'gloScreenTag=') {
       const extractedUrl = extractGloScreenTag(comment.text)
-      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId, commentText: extractedUrl.commentText })
+      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId, commentText: extractedUrl.commentText, cardName })
     }
     // commentCont.innerHTML = html;
     // commentsCont.appendChild(commentCont);
