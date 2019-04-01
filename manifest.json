@@ -18,6 +18,7 @@
     "https://app.gitkraken.com/*",
     "https://api.gitkraken.com/*",
     "https://gloapi.gitkraken.com/v1/glo/*",
+    "https://stackpath.bootstrapcdn.com/*",
     "identity",
     "activeTab"
   ],

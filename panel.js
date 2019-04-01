@@ -99,7 +99,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
         if (msg.subject = "editCommentPosition") {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
           const commentBody = {
-            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=This is ok',
+            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
           }
           postData(url, commentBody)
             .then((comment) => {
@@ -110,9 +110,10 @@ function listenForChanges(baseUrl, boardId, accessToken) {
           const commentBody = {
             text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
           }
+          const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
           postData(url, commentBody)
             .then((comment) => {
-              checkForTags([comment], msg.message.cardId)
+              // checkForTags([comment], msg.message.cardId)
             })
         }
       }

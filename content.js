@@ -38,7 +38,7 @@ function renderComment(x, y, json, id, cardId, commentText) {
   renderDiv.draggable = true;
   renderDiv.addEventListener("dragend", dragEnd);
   document.body.appendChild(renderDiv);
-  renderDiv.addEventListener("click", function (e) { openModal(e, id) });
+  renderDiv.addEventListener("click", function (e) { openModal(e, id, x, y, cardId, commentText) });
 }
 
 function deleteCommentTag(id) {
@@ -47,15 +47,14 @@ function deleteCommentTag(id) {
     tagToDelete.parentNode.removeChild(tagToDelete);
   }
 }
-function openModal(e, id) {
+function openModal(e, id, x, y, cardId, commentText) {
   e.stopPropagation();
-  alert(id)
   const renderDiv = e.target;
   let dataModalAttr = renderDiv.getAttribute("data-modal");
   renderDiv.setAttribute("data-modal", "open");
   // dataModalAttr = renderDiv.getAttribute("data-modal");
   // if (dataModalAttr === "open") {
-  const commentInput = renderCommentInput("test");
+  const commentInput = renderCommentInput(commentText);
   renderDiv.appendChild(commentInput);
   const closeBtn = document.createElement('button');
   closeBtn.textContent = "x";
@@ -64,7 +63,8 @@ function openModal(e, id) {
   saveBtn.textContent = "Save";
   closeBtn.addEventListener('click', closeModal);
   saveBtn.addEventListener('click', (e) => {
-    // chrome.runtime.sendMessage({ from: "content", subject: "saveComment", message: { id: renderDiv.id, posX: x, posY: y, cardId: cardId, comment: commentInput.value } });
+    e.stopPropagation();
+    chrome.runtime.sendMessage({ from: "content", subject: "saveComment", message: { id, posX: x, posY: y, cardId: cardId, comment: commentInput.value } });
   })
   renderDiv.appendChild(saveBtn);
   renderDiv.removeEventListener('click', openModal)
@@ -75,6 +75,7 @@ function dragEnd(ev) {
   chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, posY: ev.clientY, cardId: ev.target.getAttribute('data-card') }, });
 }
 function closeModal(e) {
+  e.stopPropagation();
   let element = e.target.parentNode;
   while (element.firstChild) {
     element.removeChild(element.firstChild);
