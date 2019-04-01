@@ -224,8 +224,8 @@ function extractGloCommentTag(comment) {
     const temp = comment.split("gloCommentTagText=");
     let temp2;
     if (temp[1]) {
+      // alert(temp[1])
       temp2 = temp[1].split('gloCommentTagAlert=')
-
     }
     const commentUrl = temp[0];
     let commentText = "insert comment";

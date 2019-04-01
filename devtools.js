@@ -1,5 +1,5 @@
 chrome.devtools.panels.create(
-  "Glo Screen Tags",
+  "Glo Comment Tags",
   "test.png",
   "panel.html",
   function (panel) { });
