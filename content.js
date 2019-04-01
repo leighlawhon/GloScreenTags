@@ -4,19 +4,20 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
       deleteCommentTag(msg.message)
     }
     if (msg.subject === "renderComment") {
-      // alert(msg.message.cardName)
+      // 
       const commentUrl = msg.message.url
       const currentUrl = window.location.toString();
       if (commentUrl === currentUrl) {
         const x = msg.message.json.x,
           y = msg.message.json.y;
-        renderComment(x, y, msg.message.json, msg.message.id, msg.message.cardId, msg.message.commentText, msg.message.cardName)
+        renderComment(x, y, msg.message.json, msg.message.id, msg.message.cardId, msg.message.commentText, msg.message.cardName, msg.message.commentAlert)
       }
     }
   }
   return true;
 });
-function renderComment(x, y, json, id, cardId, commentText, cardName) {
+function renderComment(x, y, json, id, cardId, commentText, cardName, commentAlert) {
+
   const renderDiv = document.createElement('div');
   renderDiv.style.position = 'absolute';
   renderDiv.id = id;
@@ -30,6 +31,14 @@ function renderComment(x, y, json, id, cardId, commentText, cardName) {
   var image = document.createElement("img");
   image.src = chrome.runtime.getURL("GloScreenTags48.png");
   renderDiv.style.backgroundImage = 'url(' + chrome.runtime.getURL("GloScreenTags48.png") + ')';
+  if (commentAlert) {
+    const alertDiv = document.createElement('div');
+    alertDiv.textContent = "!";
+    if (commentAlert === "urgent") {
+      alertDiv.style = "background-color: red;position: absolute;color: white;width: 15px;height: 15px;line-height: 1em;text-align: center;border-radius: 100%;font-size: 14px;"
+    }
+    renderDiv.appendChild(alertDiv);
+  }
   // renderDiv.appendChild(image)
   renderDiv.style.zIndex = 2000000089;
   renderDiv.draggable = true;
@@ -45,7 +54,7 @@ function deleteCommentTag(id) {
   }
 }
 function openModal(e, id, x, y, cardId, commentText, cardName) {
-  alert(cardName)
+  // alert(cardName)
   e.stopPropagation();
   const renderDiv = e.target;
   let dataModalAttr = renderDiv.getAttribute("data-modal");
@@ -66,6 +75,7 @@ function openModal(e, id, x, y, cardId, commentText, cardName) {
   closeBtn.addEventListener('click', closeModal);
 
   const cardNameDiv = document.createElement('p');
+  cardNameDiv.style = "line-height: 1em;";
   cardNameDiv.textContent = cardName;
   const saveBtn = document.createElement('button');
   saveBtn.textContent = "Save";

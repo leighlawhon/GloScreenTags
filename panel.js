@@ -184,7 +184,7 @@ function checkForTags(comments, cardId, cardName) {
     //   commentP.innerHTML = html;
     if (comment.text && comment.text.substring(0, 13) === 'gloScreenTag=') {
       const extractedUrl = extractGloScreenTag(comment.text)
-      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId, commentText: extractedUrl.commentText, cardName })
+      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId, commentText: extractedUrl.commentText, cardName, commentAlert: extractedUrl.commentAlert })
     }
     // commentCont.innerHTML = html;
     // commentsCont.appendChild(commentCont);
@@ -209,9 +209,9 @@ function addCommentTag(e, id, url) {
     }
     postData(url, bodyData)
       .then((comment) => {
-        alert(JSON.stringify(comment))
+        // alert(JSON.stringify(comment))
         const extractedUrl = extractGloScreenTag(comment.text)
-        sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId: comment.card_id, commentText: extractedUrl.commentText })
+        sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId: comment.card_id, commentText: extractedUrl.commentText, commentAlert: extractedUrl.commentAlert })
       })
   });
 
@@ -219,8 +219,12 @@ function addCommentTag(e, id, url) {
 
 function extractGloScreenTag(comment) {
   if (comment.substring(0, 13) === 'gloScreenTag=') {
-    const commentUrl = comment.split("gloScreenTagText=")[0];
-    const commentText = comment.split("gloScreenTagText=")[1];
+    const temp = comment.split("gloScreenTagText=")
+    const temp2 = temp[1].split('gloCommentTagAlert=')
+    const commentUrl = temp[0];
+    const commentText = temp2[0];
+    const commentAlert = temp2[1];;
+    // alert(commentAlert)
     const urlString = commentUrl.substring(13, commentUrl.length);
     let json = {};
     const gloScreenTag = getUrlVars(urlString, 'gloScreenTag');
@@ -230,7 +234,7 @@ function extractGloScreenTag(comment) {
     }
     const url = urlString.split('?')[0];
     json = { x, y };
-    return { url, json, commentText }
+    return { url, json, commentText, commentAlert }
   }
 
 }
