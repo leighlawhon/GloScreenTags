@@ -107,7 +107,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
           chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             const commentBody = {
-              text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
+              text: 'gloCommentTag=' + tabs[0].url + '?gloCommentTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloCommentTagText=' + msg.message.comment,
             }
             postData(url, commentBody)
               .then((comment) => {
@@ -119,7 +119,7 @@ function listenForChanges(baseUrl, boardId, accessToken) {
         if (msg.subject = "saveComment") {
           chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             const commentBody = {
-              text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
+              text: 'gloCommentTag=' + tabs[0].url + '?gloCommentTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloCommentTagText=' + msg.message.comment,
             }
             const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
             postData(url, commentBody)
@@ -177,13 +177,14 @@ function createCard(card, commentUrl) {
 function checkForTags(comments, cardId, cardName) {
   // alert(cardName)
   comments.forEach((comment) => {
+
     deleteTag(comment.id);
     // const commentP = document.createElement('p');
     //   var converter = new showdown.Converter(),
     //     html = converter.makeHtml(comment.text);
     //   commentP.innerHTML = html;
-    if (comment.text && comment.text.substring(0, 13) === 'gloScreenTag=') {
-      const extractedUrl = extractGloScreenTag(comment.text)
+    if (comment.text && comment.text.substring(0, 14) === 'gloCommentTag=') {
+      const extractedUrl = extractGloCommentTag(comment.text)
       sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId, commentText: extractedUrl.commentText, cardName, commentAlert: extractedUrl.commentAlert })
     }
     // commentCont.innerHTML = html;
@@ -205,30 +206,42 @@ function addCommentTag(e, id, url) {
   e.stopPropagation();
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const bodyData = {
-      text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=100&y=100}',
+      text: 'gloCommentTag=' + tabs[0].url + '?gloCommentTag=true&x=100&y=100} gloCommentTagText=Insert comment gloCommentTagAlert=none',
     }
     postData(url, bodyData)
       .then((comment) => {
         // alert(JSON.stringify(comment))
-        const extractedUrl = extractGloScreenTag(comment.text)
+        const extractedUrl = extractGloCommentTag(comment.text)
         sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId: comment.card_id, commentText: extractedUrl.commentText, commentAlert: extractedUrl.commentAlert })
       })
   });
 
 }
 
-function extractGloScreenTag(comment) {
-  if (comment.substring(0, 13) === 'gloScreenTag=') {
-    const temp = comment.split("gloScreenTagText=")
-    const temp2 = temp[1].split('gloCommentTagAlert=')
+function extractGloCommentTag(comment) {
+  // alert(comment.substring(0, 14))
+  if (comment.substring(0, 14) === 'gloCommentTag=') {
+    const temp = comment.split("gloCommentTagText=");
+    let temp2;
+    if (temp[1]) {
+      temp2 = temp[1].split('gloCommentTagAlert=')
+
+    }
     const commentUrl = temp[0];
-    const commentText = temp2[0];
-    const commentAlert = temp2[1];;
+    let commentText = "insert comment";
+    let commentAlert = "none";
+    if (temp2 && temp2[0]) {
+      commentText = temp2[0];
+    }
+    if (temp2 && temp2[1]) {
+      commentAlert = temp2[1]
+    }
+
     // alert(commentAlert)
-    const urlString = commentUrl.substring(13, commentUrl.length);
+    const urlString = commentUrl.substring(14, commentUrl.length);
     let json = {};
-    const gloScreenTag = getUrlVars(urlString, 'gloScreenTag');
-    if (gloScreenTag) {
+    const gloCommentTag = getUrlVars(urlString, 'gloCommentTag');
+    if (gloCommentTag) {
       x = getUrlVars(urlString, 'x');
       y = getUrlVars(urlString, 'y');
     }

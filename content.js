@@ -24,17 +24,18 @@ function renderComment(x, y, json, id, cardId, commentText, cardName, commentAle
   renderDiv.setAttribute('data-modal', "closed")
   renderDiv.setAttribute('data-card', cardId);
   renderDiv.style.width = "50px";
-  renderDiv.style.position = "relative";
+  renderDiv.style.position = "absolute";
   renderDiv.style.height = "50px";
   renderDiv.style.top = y + "px";
   renderDiv.style.left = x + "px";
-  var image = document.createElement("img");
-  image.src = chrome.runtime.getURL("GloScreenTags48.png");
+  // var image = document.createElement("img");
+  // image.src = chrome.runtime.getURL("GloScreenTags48.png");
   renderDiv.style.backgroundImage = 'url(' + chrome.runtime.getURL("GloScreenTags48.png") + ')';
   if (commentAlert) {
     const alertDiv = document.createElement('div');
-    alertDiv.textContent = "!";
+
     if (commentAlert === "urgent") {
+      alertDiv.textContent = "!";
       alertDiv.style = "background-color: red;position: absolute;color: white;width: 15px;height: 15px;line-height: 1em;text-align: center;border-radius: 100%;font-size: 14px;"
     }
     renderDiv.appendChild(alertDiv);
@@ -99,7 +100,7 @@ function openModal(e, id, x, y, cardId, commentText, cardName) {
 
 }
 function dragEnd(ev) {
-  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: ev.clientX, posY: ev.clientY, cardId: ev.target.getAttribute('data-card'), cardName: "test" }, });
+  chrome.runtime.sendMessage({ from: "content", subject: "editCommentPosition", message: { id: ev.target.id, posX: (ev.clientX - 25), posY: (ev.clientY - 25), cardId: ev.target.getAttribute('data-card'), cardName: "test" }, });
 }
 function closeModal(e) {
   e.stopPropagation();
