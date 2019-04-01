@@ -1,7 +1,8 @@
+
 chrome.identity.launchWebAuthFlow(
   { 'url': 'https://app.gitkraken.com/oauth/authorize?client_id=bn68kgxxiikgfjj8dh41&redirect_uri=https://laakphkcneokcnkadpjncgidbmeghpbg.chromiumapp.org/provider_cb&response_type=code&scope=board:read board:write user:read', 'interactive': true },
   function (redirect_url) {
-    // alert(redirect_url);
+
     const code = getUrlVars(redirect_url, "code");
     const url = "https://api.gitkraken.com/oauth/access_token";
     const bodyData = {
@@ -94,27 +95,32 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
 function listenForChanges(baseUrl, boardId, accessToken) {
   chrome.runtime.onMessage.addListener(
     function (msg, sender, sendResponse) {
-
       if (msg.from = "content") {
         if (msg.subject = "editCommentPosition") {
           const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
-          const commentBody = {
-            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
-          }
-          postData(url, commentBody)
-            .then((comment) => {
-              checkForTags([comment], msg.message.cardId)
-            })
+          chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            const commentBody = {
+              text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
+            }
+            postData(url, commentBody)
+              .then((comment) => {
+                checkForTags([comment], msg.message.cardId)
+              })
+          });
+
         }
         if (msg.subject = "saveComment") {
-          const commentBody = {
-            text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
-          }
-          const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
-          postData(url, commentBody)
-            .then((comment) => {
-              // checkForTags([comment], msg.message.cardId)
-            })
+          // chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+          //   const commentBody = {
+          //     text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
+          //   }
+          //   const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
+          //   postData(url, commentBody)
+          //     .then((comment) => {
+          //       // checkForTags([comment], msg.message.cardId)
+          //     })
+          // });
+
         }
       }
       return true;
@@ -174,7 +180,7 @@ function checkForTags(comments, cardId) {
     //   var converter = new showdown.Converter(),
     //     html = converter.makeHtml(comment.text);
     //   commentP.innerHTML = html;
-    if (comment.text.substring(0, 13) === 'gloScreenTag=') {
+    if (comment.text && comment.text.substring(0, 13) === 'gloScreenTag=') {
       const extractedUrl = extractGloScreenTag(comment.text)
       sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId, commentText: extractedUrl.commentText })
     }
@@ -195,14 +201,18 @@ function sendMessage(sub, msg) {
 }
 function addCommentTag(e, id, url) {
   e.stopPropagation();
-  const bodyData = {
-    text: 'gloScreenTag=https://dog.ceo/dog-api/documentation/?gloScreenTag=true&x=100&y=100}',
-  }
-  postData(url, bodyData)
-    .then((comment) => {
-      const extractedUrl = extractGloScreenTag(comment.text)
-      sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id, cardId: comment.card_id, commentText: extractedUrl.commentText })
-    })
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const bodyData = {
+      text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=100&y=100}',
+    }
+    postData(url, bodyData)
+      .then((comment) => {
+        alert(JSON.stringify(comment))
+        const extractedUrl = extractGloScreenTag(comment.text)
+        sendMessage("renderComment", { url: extractedUrl.url, json: extractedUrl.json, id: comment.id, cardId: comment.card_id, commentText: extractedUrl.commentText })
+      })
+  });
+
 }
 
 function extractGloScreenTag(comment) {
