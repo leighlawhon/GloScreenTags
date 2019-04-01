@@ -52,21 +52,37 @@ function openModal(e, id, x, y, cardId, commentText) {
   const renderDiv = e.target;
   let dataModalAttr = renderDiv.getAttribute("data-modal");
   renderDiv.setAttribute("data-modal", "open");
-  // dataModalAttr = renderDiv.getAttribute("data-modal");
-  // if (dataModalAttr === "open") {
+  const modalDiv = document.createElement('div');
+  modalDiv.className = "card";
+  modalDiv.style = "position: absolute; top: 55px;"
+
+  const modalBodyDiv = document.createElement('div');
+  modalBodyDiv.style = "padding: 0px 15px 15px; border: thin solid #efefef; background-color: white "
   const commentInput = renderCommentInput(commentText);
-  renderDiv.appendChild(commentInput);
+  commentInput.className = "border"
+
+
   const closeBtn = document.createElement('button');
+  closeBtn.className = "btn btn-light col pull-right"
   closeBtn.textContent = "x";
-  renderDiv.appendChild(closeBtn);
+  closeBtn.addEventListener('click', closeModal);
+
   const saveBtn = document.createElement('button');
   saveBtn.textContent = "Save";
-  closeBtn.addEventListener('click', closeModal);
+  saveBtn.className = "btn btn-link col"
   saveBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     chrome.runtime.sendMessage({ from: "content", subject: "saveComment", message: { id, posX: x, posY: y, cardId: cardId, comment: commentInput.value } });
   })
-  renderDiv.appendChild(saveBtn);
+  const rowDiv = document.createElement('div');
+  rowDiv.className = "row";
+  rowDiv.appendChild(saveBtn);
+  rowDiv.appendChild(closeBtn);
+  modalBodyDiv.appendChild(rowDiv);
+  modalBodyDiv.appendChild(commentInput);
+  modalDiv.appendChild(modalBodyDiv);
+  renderDiv.appendChild(modalDiv);
+
   renderDiv.removeEventListener('click', openModal)
   // }
 
@@ -76,7 +92,7 @@ function dragEnd(ev) {
 }
 function closeModal(e) {
   e.stopPropagation();
-  let element = e.target.parentNode;
+  let element = e.target.parentNode.parentNode.parentNode;
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
@@ -89,7 +105,6 @@ function renderCommentInput(commentText) {
   if (commentText) {
     commentInput.value = commentText;
   }
-
-  commentInput.style = "background-color: white; width: 100px; height: 100px; position: absolute; top: 55px; padding: 15px;"
+  commentInput.className = "clearfix border"
   return commentInput
 }

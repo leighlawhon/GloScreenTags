@@ -110,16 +110,16 @@ function listenForChanges(baseUrl, boardId, accessToken) {
 
         }
         if (msg.subject = "saveComment") {
-          // chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-          //   const commentBody = {
-          //     text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
-          //   }
-          //   const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
-          //   postData(url, commentBody)
-          //     .then((comment) => {
-          //       // checkForTags([comment], msg.message.cardId)
-          //     })
-          // });
+          chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            const commentBody = {
+              text: 'gloScreenTag=' + tabs[0].url + '?gloScreenTag=true&x=' + msg.message.posX + '&y=' + msg.message.posY + ' ' + 'gloScreenTagText=' + msg.message.comment,
+            }
+            const url = baseUrl + "boards/" + boardId + "/cards/" + msg.message.cardId + "/comments/" + msg.message.id + accessToken;
+            postData(url, commentBody)
+              .then((comment) => {
+                // checkForTags([comment], msg.message.cardId)
+              })
+          });
 
         }
       }
@@ -128,16 +128,23 @@ function listenForChanges(baseUrl, boardId, accessToken) {
 }
 function renderComment(card, col, commentUrl) {
   const cardCont = document.createElement('div');
+  cardCont.className = "border row p-3";
   const addCommentTagBtn = document.createElement('button');
+  addCommentTagBtn.className = "btn btn-link float-right pt-0 pb-0"
   addCommentTagBtn.innerHTML = "+";
   addCommentTagBtn.addEventListener('click', (e) => addCommentTag(e, card.id, commentUrl))
-  cardCont.innerHTML = card.name;
+  const nameCont = document.createElement('div');
+  nameCont.className = "float-left"
+  nameCont.innerHTML = card.name;
+
   // cardCont.style.border = "thin blue solid";
   // cardCont.addEventListener('click', (e) => {
   createCard(card, commentUrl);
   //   // chrome.tabs.create({ url: 'https://www.cnn.com', active: true });
   // }, false)
+  cardCont.appendChild(nameCont);
   cardCont.appendChild(addCommentTagBtn);
+
   col.appendChild(cardCont);
 }
 function createCard(card, commentUrl) {
