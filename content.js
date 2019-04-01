@@ -33,12 +33,12 @@ function renderComment(x, y, json, id, cardId, commentText) {
   var image = document.createElement("img");
   image.src = chrome.runtime.getURL("GloScreenTags48.png");
   renderDiv.style.backgroundImage = 'url(' + chrome.runtime.getURL("GloScreenTags48.png") + ')';
-  renderDiv.addEventListener("click", openModal);
   // renderDiv.appendChild(image)
   renderDiv.style.zIndex = 2000000089;
   renderDiv.draggable = true;
   renderDiv.addEventListener("dragend", dragEnd);
   document.body.appendChild(renderDiv);
+  renderDiv.addEventListener("click", function (e) { openModal(e, id) });
 }
 
 function deleteCommentTag(id) {
@@ -47,25 +47,28 @@ function deleteCommentTag(id) {
     tagToDelete.parentNode.removeChild(tagToDelete);
   }
 }
-function openModal(e) {
+function openModal(e, id) {
+  e.stopPropagation();
+  alert(id)
   const renderDiv = e.target;
   let dataModalAttr = renderDiv.getAttribute("data-modal");
-  renderDiv.setAttribute("data-modal", dataModalAttr === "open" ? "closed" : "open");
-  dataModalAttr = renderDiv.getAttribute("data-modal");
-  if (dataModalAttr === "open") {
-    const commentInput = renderCommentInput("test");
-    renderDiv.appendChild(commentInput);
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = "x";
-    renderDiv.appendChild(closeBtn);
-    const saveBtn = document.createElement('button');
-    closeBtn.addEventListener('click', closeModal);
-    saveBtn.addEventListener('click', (e) => {
-      chrome.runtime.sendMessage({ from: "content", subject: "saveComment", message: { id, posX: x, posY: y, cardId: cardId, comment: commentInput.value } });
-    })
-    renderDiv.appendChild(saveBtn);
-    renderDiv.removeEventListener('click', openModal)
-  }
+  renderDiv.setAttribute("data-modal", "open");
+  // dataModalAttr = renderDiv.getAttribute("data-modal");
+  // if (dataModalAttr === "open") {
+  const commentInput = renderCommentInput("test");
+  renderDiv.appendChild(commentInput);
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = "x";
+  renderDiv.appendChild(closeBtn);
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = "Save";
+  closeBtn.addEventListener('click', closeModal);
+  saveBtn.addEventListener('click', (e) => {
+    // chrome.runtime.sendMessage({ from: "content", subject: "saveComment", message: { id: renderDiv.id, posX: x, posY: y, cardId: cardId, comment: commentInput.value } });
+  })
+  renderDiv.appendChild(saveBtn);
+  renderDiv.removeEventListener('click', openModal)
+  // }
 
 }
 function dragEnd(ev) {
@@ -77,7 +80,7 @@ function closeModal(e) {
     element.removeChild(element.firstChild);
   }
   element.setAttribute("data-modal", "closed");
-  element.addEventListener('click', openModal);
+  // element.addEventListener('click', openModal);
 }
 function renderCommentInput(commentText) {
   const commentInput = document.createElement('input');
