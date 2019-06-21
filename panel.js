@@ -1,6 +1,6 @@
-
+//*******// Authentication //*******//
 chrome.identity.launchWebAuthFlow(
-  { 'url': 'https://app.gitkraken.com/oauth/authorize?client_id=bn68kgxxiikgfjj8dh41&redirect_uri=https://laakphkcneokcnkadpjncgidbmeghpbg.chromiumapp.org/provider_cb&response_type=code&scope=board:read board:write user:read', 'interactive': true },
+  { 'url': 'https://app.gitkraken.com/oauth/authorize?client_id=bn68kgxxiikgfjj8dh41&redirect_uri=https://acjimbandajfnicpmppamaihgheigooi.chromiumapp.org/provider_cb&response_type=code&scope=board:read board:write user:read', 'interactive': true },
   function (redirect_url) {
 
     const code = getUrlVars(redirect_url, "code");
@@ -26,7 +26,7 @@ chrome.identity.launchWebAuthFlow(
       })
       .catch(error => console.error(error));
   });
-
+//*******// Utility Fuctions //*******//
 function getUrlVars(url_string, v) {
   var url = new URL(url_string);
   var code = url.searchParams.get(v);
@@ -53,7 +53,7 @@ function getData(url) {
   })
     .then(response => response.json());
 }
-
+//*******// Board Drop Down
 function createBoardDropDown(data, boardSelect) {
   const contentDiv = document.getElementById('board_content');
   contentDiv.innerHTML = data[0].name;
@@ -67,20 +67,21 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
     const boardId = e.target.value;
     getData(baseUrl + 'boards/' + boardId + accessToken + '&fields=columns').then((resp) => {
       const columns = resp.columns;
-      // alert(JSON.stringify(columns))
-      // getData(baseUrl + 'boards/' + boardId + '/cards' + accessToken)
-      // .then((cards) => {
 
       columns.forEach(column => {
         const contentCont = document.getElementById('board_content');
+        // delete existing content
         contentCont.innerHTML = '';
+        // create a column
         let colDiv = document.createElement('div');
         const colNameDiv = document.createElement('div');
         colDiv.appendChild(colNameDiv);
         colNameDiv.innerHTML = column.name;
+        // get cards
         getData(baseUrl + 'boards/' + boardId + '/columns/' + column.id + '/cards' + accessToken)
           .then(cards => {
             listenForChanges(baseUrl, boardId, accessToken);
+            // render cards
             cards.forEach(card => {
               const commentUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/comments' + accessToken;
               const attachmentsUrl = baseUrl + 'boards/' + boardId + '/cards/' + card.id + '/attachments' + accessToken;
@@ -88,6 +89,7 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
             })
           })
           .then(() => {
+            // add the columns to the container
             colDiv.className = "col";
             contentCont.appendChild(colDiv)
           });
@@ -95,10 +97,9 @@ function listenToBoardSelect(boardSelect, baseUrl, accessToken) {
       })
 
     });
-    // })
-
   })
 }
+//*******// Listen for messages from content (tabs) 
 function listenForChanges(baseUrl, boardId, accessToken) {
   chrome.runtime.onMessage.addListener(
     function (msg, sender, sendResponse) {
